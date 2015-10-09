@@ -1,0 +1,57 @@
+.EQU one=$10
+.EQU two=$10	
+.EQU three=$06
+.EQU four=$10
+.EQU five=$09
+
+
+ldi ZL, $00; for setting up pointers
+ldi ZH, $01;
+ldi XL, $04;
+ldi XH, $01;
+ldi YL, $00; 
+ldi YH, $01;
+
+ldi r25, $00;
+
+ldi r16, one; loading the 9 digit numbers  ; just r16 is being used
+st Z, r16
+ldi r16, two
+std Z+1, r16
+ldi r16, three
+std Z+2, r16
+ldi r16, four
+std Z+3, r16
+ldi r16, five
+std Z+4, r16
+
+
+
+positive:
+cp ZL, XL ; if ZL is equal to XL exit inner loop and decrement XL
+breq exitInnerLoop;
+
+ld r17, Z;             ;  using r17 for storing Z  
+ldd r18, Z+1;
+inc ZL;
+sub r18, r17;
+brpl positive;
+brmi negative; you have to swap it 
+
+
+//Swapping operation
+negative:
+dec ZL;
+ld r20, Z;  ;
+ldd r21, Z+1;
+st Z, r21;
+std Z+1, r20;
+jmp positive; 
+
+
+exitInnerLoop:
+mov ZL, YL; YL points to 0x00
+dec XL;
+cp ZL, XL
+brne positive;
+
