@@ -1,0 +1,9 @@
+function [V] = FinalAssignment2(A)% Get the inverse of a function% We check rank first. If not full rank then returns A unchanged% Then we do elimination going down% Then we do elimination going up
+[m,n] = size(A);
+k = rank(A);if (k~=n || k~=m)% this will check if matrix is not square eitherV=A;returnend
+%using the command C=eye(r) which makes an rxr identity.C=eye(m);
+for i = 1:n %columnsfor j = (i+1):n %rows (starts on second row because the first row remains unchanged.)%No need for the while loop. You appear be checking to see if the%pivot is equal to one instead of zero. You only need to check the%pivot once every time you change columns so this is in the wrong%place. You do not need to for loop inside the while loop either.%After you change columns (when i increments), check to see if%A(i,i) is zero. If it is, swap. If not, move on.coef=A(j,i)/A(i,i);A(j,:) = A(j,:)-coef*A(i,:);C(j,:) = C(j,:)-coef*C(i,:);endif(A(i,i)==0)Vect=ones(1,n); % for z=1:n-1for f=i:n-1for L=1:nVect(1,L) = A(i,L);A(i,L)= A(i+1,L);A(i+1,L)= Vect(1,L);endend% end end %end of else if end
+Calculating the Inver-se of a Square Matrix
+2
+for i = n:-1:1 %columnsfor j = i-1:-1:1 %rows (starts on second row because the first row remains unchanged.)coef=A(j,i)/A(i,i);% end A(j,:) = A(j,:)-coef*A(i,:);C(j,:) = C(j,:)-coef*C(i,:);endendfor i=1:ndivider=A(i,i);A(i,:)= A(i,:)/divider;C(i,:)=C(i,:)/divider;end%After you are done this step, you need to divide through by the pivot in%each row so that you get A to turn into an identity matrix.
+V=C;
