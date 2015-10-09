@@ -1,0 +1,150 @@
+/*
+ * Muhammad Ayub
+*tuf22191@temple.edu
+*CIS 1068
+ */
+
+package areaoftriangle;
+
+import java.lang.Math;
+import java.util.*;
+import javax.swing.*;
+
+
+import javax.swing.JOptionPane;
+
+/**
+ *
+ * @author Jabrone
+ */
+public class AreaofTriangle {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+       
+        int sidea, sideb, sidec;
+        String a = JOptionPane.showInputDialog(null, "Please enter side 1");
+        String b = JOptionPane.showInputDialog(null, "Please enter in side 2");
+        String c = JOptionPane.showInputDialog(null, "Please enter in side 3");
+        
+        
+        sidea = Integer.parseInt(a);
+        sideb = Integer.parseInt(b);
+        sidec = Integer.parseInt(c);
+
+
+
+        //check if it is a triangle
+        boolean isnottriangle = (sidea >= sideb + sidec) || (sideb >= sidec + sidea) || (sidec >= sideb + sidea);
+
+        
+        //get the right values
+        if(isnottriangle){
+	
+        isnottriangle = false;
+        do
+          {
+            JOptionPane.showMessageDialog(null, "You entered in the rong values");
+	a = JOptionPane.showInputDialog(null, "Please enter side 1");
+	b = JOptionPane.showInputDialog(null, "Please enter in side 2");
+	c = JOptionPane.showInputDialog(null, "Please enter in side 3");
+	
+        sidea = Integer.parseInt(a);
+        sideb = Integer.parseInt(b);
+        sidec = Integer.parseInt(c);
+        
+        isnottriangle = (sidea >= sideb + sidec) || (sideb >= sidec + sidea) || (sidec >= sideb + sidea);
+        
+          }  while (isnottriangle);
+        
+        }
+        //end of if statement
+        
+        
+        
+        // these next two if statements are to get the order of the three objects right. 
+        //NOTICE: Only the largest side must be known and will be stored in sidec.
+        //We don't really need to sort out sidea and sideb in order to determine if the values
+        //form a triangle
+        
+        if(sidea>=sideb && sidea>=sidec)
+        {
+            int switcher=sidec;
+            sidec=sidea;
+            sidea=switcher;
+        }
+        if(sideb>=sidec && sideb>=sidea)
+        {
+            int switcher=sideb;
+            sideb=sidec;
+            sidec=switcher;
+        }
+        
+        
+        //Calculate the Area
+        
+        double s=.5*(sidea+sideb+sidec);
+        double areaprime= Math.sqrt(s*(s-sidea)*(s-sideb)*(s-sidec));
+        
+        
+        //Round to 3 decimal places
+        double areabeta = (areaprime - ((int)areaprime))*1000;
+        double areamagma = Math.round(areabeta);
+        double areazeta=areamagma/1000;
+        double area= areazeta + ((int)areaprime);
+        
+        
+
+        //values are now in order
+        //classify type of triangle and answer with the area
+        if((sidea*sidea+sideb*sideb)==(sidec*sidec))
+        {
+           if(sidea==sideb || sidec==sideb || sidea==sidec)
+           {JOptionPane.showMessageDialog(null, "You have an isosceles right triangle\n Your area is " + area);}
+           else
+             {JOptionPane.showMessageDialog(null, "You have a right triangle\n Your area is " + area); } 
+        }
+        else if(sidea*sidea+sideb*sideb>sidec*sidec)
+        {
+           if(sidea==sideb && sidea==sidec)
+           {JOptionPane.showMessageDialog(null, "You have an equilaeral acute triangle\n Your area is " + area);}
+           else if(sidea==sideb || sidec==sideb || sidea==sidec)
+             {JOptionPane.showMessageDialog(null, "You have an isosceles acute triangle\n Your area is " + area); } 
+           else{
+           JOptionPane.showMessageDialog(null, "You have an acute triangle\n Your area is " + area); } 
+           }
+            
+        
+        else if (sidea*sidea+sideb*sideb < sidec*sidec)
+        {
+            if(sidea==sideb || sidec==sideb || sidea==sidec)
+           {JOptionPane.showMessageDialog(null, "You have an isosceles obtuse triangle\n Your area is " + area);}
+           else
+             {JOptionPane.showMessageDialog(null, "You have an obtuse triangle\n Your area is " + area); } 
+        
+        }
+        else{ 
+        JOptionPane.showMessageDialog(null, "This shouldn't be happening");}
+
+    
+    
+    
+    
+    
+    
+    }
+    
+}
+
+
+
+
+
+
+
+
+   
+    
+
