@@ -7,3 +7,4 @@ Calculating the Inver-se of a Square Matrix
 2
 for i = n:-1:1 %columnsfor j = i-1:-1:1 %rows (starts on second row because the first row remains unchanged.)coef=A(j,i)/A(i,i);% end A(j,:) = A(j,:)-coef*A(i,:);C(j,:) = C(j,:)-coef*C(i,:);endendfor i=1:ndivider=A(i,i);A(i,:)= A(i,:)/divider;C(i,:)=C(i,:)/divider;end%After you are done this step, you need to divide through by the pivot in%each row so that you get A to turn into an identity matrix.
 V=C;
+%
