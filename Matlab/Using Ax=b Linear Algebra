@@ -1,0 +1,112 @@
+function [ ] = Assignment3( file1, file2 )
+% The first parameter is the matrix in the equation Ax=b
+% The second parameter is the vector b
+
+
+disp('DISCLAIMER: Output file label: Answer.txt');
+
+A=csvread(file1);
+b=csvread(file2);
+
+ranker=rank(A);
+[m,n]=size(A);
+
+[s,t]=size(b);
+ 
+disp('The rank of A is');
+disp(ranker);
+%Read in both the matrix and the vector
+%Get the dimensions of both
+%Find the rank of the matrix
+
+if (ranker==n && m==n)
+    if(n==s)
+    C=linsolve(A,b);
+    
+    disp('Full rank, and square matrix: solution is:');
+    disp(C);
+    
+    
+    fileID=fopen('Answer.txt', 'w')
+    fprintf(fileID,'The matrix is full rank and the matrix is a square matrix.\r\n'); %#ok<*NASGU>
+    fprintf(fileID,'\tThe results are as follows:\r\n'); 
+    fprintf(fileID,'%3.3f\r\n',C); %#ok<*NOPRT>
+    fclose=(fileID);
+    
+    else
+    disp('Sorry, cannot do this');
+    fileID=fopen('Answer.txt', 'w')
+    fprintf(fileID,'The matrix is full rank but the matrix does not match the vector b\r\n'); %#ok<*NASGU>
+    fclose=(fileID);
+    end
+    
+    %Above, were the ideal conditions. The square full rank matrix in
+    %conjunction with the vector is used to solved for x.
+    %X is read into the file Answer.txt writing file
+    
+    
+    
+    
+elseif(ranker~=n && m==n)
+    
+    dimOfNull=n-ranker;
+    dimOfColumnSpace=n;
+    
+    
+    fileID=fopen('Answer.txt', 'w')
+    fprintf(fileID,'The matrix is square but the matrix does not have all'); 
+    fprintf(fileID, ' pivots or is not full rank\r\n'); %#ok<*NASGU>
+    fprintf(fileID,'Therefore, here is the dimension of the null space: %d\r\n', dimOfNull); %#ok<*NASGU>
+    fprintf(fileID,'Also, here is the dimension of the column space: %d\r\n', dimOfColumnSpace);
+    fclose=(fileID);
+    
+    
+    
+    disp('The dimension of the null space is');
+    disp(dimOfNull);
+    disp('\n');
+    disp('The dimension of the column space is %d',dimOfColumnSpace);
+    
+%Because the matrix is square but not full rank, we were instructed to
+%simply get the null space dimension and the column space dimension
+%The results are posted into the writing file named Answer.txt.
+
+
+else
+    nullSpaceBasis=null(A);
+    [y,z]=size(nullSpaceBasis);
+    
+    disp('The basis of the null space of the matrix A is:');
+    disp(nullSpaceBasis);
+    
+    
+    
+    
+    fileID=fopen('Answer.txt', 'w')
+    fprintf(fileID,'The matrix is not square and does not have full pivots.'); 
+    fprintf(fileID,'The basis of the null space is as follows\r\n'); 
+    for i= 1:y
+        for j = 1:z       %I know I can do this in an easier way, but it looks cooler with for loops!
+            fprintf(fileID,'%4.3f       ', nullSpaceBasis(i,j)); 
+        end
+        fprintf(fileID,'\r\n');
+    end
+    fclose=(fileID);
+    
+    %%%%%%% With the for loop, the code can be any size array that
+    %%%%%%% is not square and does not have have full rank %%%%%%%
+            
+%The last option will be getting the null space if none of the other
+%options work.
+%  The null space will have decimels in it but we don't know how many
+%  columns it will have. It all depends. 
+% Therefore the for loop will print the rows of the nullSpaceBasis variable
+% and then carriage return and repeat the whole process for the rows.
+    
+    
+    
+  
+end
+
+end
+
