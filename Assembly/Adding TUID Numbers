@@ -1,0 +1,36 @@
+;Write a program to (a) place each of your 9-digit TUID numbers into SRAM locations starting at address 0x100, (b) add each digit to R19 and store the sum in
+;SRAM location 0x306, and (c) use screenshots to show the SRAM memory addresses and their contents.
+
+ldi ZL, $00;
+ldi ZH, $01;
+
+ldi r16, $9; loading the 9 digit numbers
+st Z, r16
+ldi r16, $1
+std Z+1, r16
+ldi r16, $5
+std Z+2, r16
+ldi r16, $1
+std Z+3, r16
+ldi r16, $1
+std Z+4, r16
+ldi r16, $8
+std Z+5, r16
+ldi r16, $8
+std Z+6, r16
+ldi r16, $1
+std Z+7, r16
+ldi r16, $3
+std Z+8, r16
+clr r16;   setting r16 to $00 so I can set Z+9 to 0
+std Z+9, r16; I am doing this so I know Z+9 location has a 0 value to it to stop loop.
+
+clr r19; just making sure that r19 is clear
+ld r16, Z+; loading into r16 with a post increment 
+
+add r19,r16;  cpi r16,$00 => just doing some research
+ld r16, Z+;
+   cpi r16,$00;  compare statement: if r16 is equal to 0. If it is not, branch back to three        ;instructions
+brne PC-3;  Stops at Z+9
+
+sts 0x306, r19; storing the sum in the SRAM 0x306 cell
