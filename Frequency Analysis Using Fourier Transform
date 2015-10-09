@@ -1,0 +1,54 @@
+%
+%
+%
+%
+%
+%
+clear;
+
+%The variables involved
+T=10;
+d=1;
+
+
+% The values of the t vector 
+t= linspace (-10, 10, 1e4);
+xt=0*t;   % courtesy of Dr. Obeid.
+
+figure;
+
+%for loop for the 5 possible d values
+for q= 0:2    
+    T=(q+1)*5;
+%for loop for adding n's
+for n=1:100
+    wn=2*pi*n/T;
+    An= -((exp(-j*2*pi*n*d/T)-1)/(2*pi*n*j));
+    kn=2*abs(An);
+    phase=angle(An);
+    xt = xt + kn*cos(wn*t + phase);
+    subplot(5, 1, q+1);
+    plot(t,xt);
+    pause(.1);
+end
+%reset values for next graph
+xt=0*t;
+
+%add legend to the graph
+legendString= 'T is %ds , d is 1s';
+legendString = sprintf(legendString, T);
+
+if q==1 
+    ylabel('Amplitude');
+end
+
+hold on
+squarewave = .5*square((2*pi*t)/T, d*100/T)+.5;
+plot(t, squarewave);
+legend(legendString, 'Actual Square Wave')
+hold off
+
+end
+
+xlabel('Time in seconds');
+
