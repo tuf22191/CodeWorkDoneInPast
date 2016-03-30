@@ -69,24 +69,20 @@ Window::Window() : plot( QString("Velocity") ), gain(5), count(0) // <-- 'c++ in
         //tion to hook up the start() method of the QThread object and the 
         // desired method that does the processing 
         DaThread *ls =new DaThread();
+        ls-> initiate(xData, yData);
         ls->start();
 }
 
 
-void Window::timerEvent( QTimerEvent * )
+void Window::timerEvent( QTimerEvent * ) //should plot every x amount of times
 {
 	// generate an sine wave input for example purposes - you must get yours from the A/D!
-	double inVal = gain * sin( M_PI * count/50.0 );
-	++count;
-
-	// add the new input to the plot
-	memmove( yData, yData+1, (plotDataSize-1) * sizeof(double) );
-	yData[plotDataSize-1] = inVal;
+	// only plotting
 	curve.setSamples(xData, yData, plotDataSize);
 	plot.replot();
 
 	// set the thermometer value
-	thermo.setValue( inVal + 10 );
+	//thermo.setValue( inVal + 10 );
 }
 
 
@@ -97,12 +93,22 @@ void Window::setGain(double gain)
 	this->gain = gain;
 }
  
+void DaThread::initiate(double xArray[], double yArray[])
+{
+	//for(int j=0;j<DATA;j++){
+      //   xData[j]=amount;
+      //   yData[j]=amount;
+      //}
+      xDataPointer=xArray;
+      yDataPointer=yArray;
+}
+
 
 void DaThread::run()
 {
 	//getDataStructure() function for getting the array that has the data
         int counter =0;
-        unsigned int millionMicroseconds=1000000;
+        unsigned int millionMicroseconds=40000;
         while(counter<7){
         counter = counter+1;
 
@@ -111,6 +117,20 @@ void DaThread::run()
         //http://stackoverflow.com/questions/4184468/sleep-for-milliseconds
        //         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
        usleep(millionMicroseconds);
-        }
+        
+         
+           //testing THIS IS PROFESSOR Porr's Code Copied
+       int count=0; 
+       int gain=5;
+      for (int j=0;j<7;j++){
+       double inVal = gain * sin( M_PI * count/50.0 );
+	++count;
+
+	// add the new input to the plot
+	memmove( yDataPointer, yDataPointer+1, (DATA-1) * sizeof(double) );
+	yDataPointer[DATA-1] = inVal;
+      }
+      }
+
 }
 

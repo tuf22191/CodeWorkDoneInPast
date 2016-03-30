@@ -67,6 +67,14 @@ private:
 
 public:
      void run();
+     void initiate(double xArray[],double yArray[]);
+	//AGAIN, BELOW is just taken from what Professor Had
+      static const int DATA = 100;
+
+	// data arrays for the plot
+	double *xDataPointer;
+	double *yDataPointer;
+
  };
 
 #endif // WINDOW_H
