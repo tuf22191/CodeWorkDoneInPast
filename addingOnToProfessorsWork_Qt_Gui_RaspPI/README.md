@@ -1,4 +1,4 @@
-QwtExample
+QwtExample This README file is from my Professor Bernd Porr of University of Glasgow! Not mine! I just added/changed things
 ===========
 
 A simple example program using Qt/Qwt widgets to be used as a base for students doing Raspberry Pi data acquisition.
