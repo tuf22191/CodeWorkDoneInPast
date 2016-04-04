@@ -30,10 +30,11 @@
 //#include <linux/i2c-dev.h>
 #include <time.h>
 #include <sys/time.h>
+#include <cstdio>
 
+#include <sys/ioctl.h>
 
-
-
+#define MMA7660_ADDR  0x4c
 
 
 // class definition 'Window'
@@ -82,6 +83,8 @@ private:
  {
      Q_OBJECT
 
+
+
 public:
      void run();
      void initiate(double xArray[],double yArray[]);
@@ -92,6 +95,20 @@ public:
 	double *xDataPointer;
 	double *yDataPointer;
 
+      typedef unsigned char byte;
+
+      int deviceDescriptore;
+
+      void I2cSendData(byte addr,byte *data,int len);
+
+      void I2cReadData(byte addr,byte *data,int len);
+      
+	void init_i2c(char *DeviceName);
+
  };
+
+
+            
+
 
 #endif // WINDOW_H

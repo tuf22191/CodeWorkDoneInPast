@@ -103,6 +103,32 @@ void DaThread::initiate(double xArray[], double yArray[])
       yDataPointer=yArray;
 }
 
+void DaThread::I2cSendData(byte addr,byte *data,int len)
+{
+           if(ioctl(deviceDescriptore,I2C_SLAVE, addr)){
+                printf("I2cSendData_device : IOCTL Problem\n");}
+
+        write(deviceDescriptore,data,len);
+}
+
+void DaThread::I2cReadData(byte addr,byte *data,int len)
+{
+ if(ioctl(deviceDescriptore,I2C_SLAVE, addr))
+               { printf("I2cReadData_device : IOCTL Problem\n");}
+
+        read(deviceDescriptore,data,len);
+
+}
+
+void DaThread::init_i2c(char *DeviceName)
+{
+        deviceDescriptore=open(DeviceName, O_RDWR);
+        if (deviceDescriptore == -1)
+        {
+                printf("Error opening device '%s'\n",DeviceName);
+                exit(-1);
+        }
+}
 
 void DaThread::run()
 {
@@ -113,7 +139,35 @@ void DaThread::run()
         int count=0;
         double inVal=0;
 
+                int i, v;
+        byte data[20];
+
+        init_i2c("/dev/i2c-1");
+
+        // set mode register to 1 to activate accelerometer
+        data[0] = 7;
+        data[1] = 1;
+        I2cSendData(MMA7660_ADDR,data,2);
+
+        //printf("Hit any key to quit\n\n"); 
+
+
+
+ 
         while(counter<10000){
+
+                        I2cReadData(MMA7660_ADDR,data,11);
+        for (i=0; i<3; i++) {
+                        v = (data[i]/2^6)*9.81;
+                        if (v>=0x20) v = -(0x40 - v);  //sign extend negatives
+                        printf("%c:%3d  ",i+'X',v);
+           if(i==0){inVal=v;}
+                }
+
+
+
+
+
         counter = counter+1;
 
         std::cout << "this is in the thread\n";
@@ -123,19 +177,14 @@ void DaThread::run()
        usleep(millionMicroseconds);
         
          
-       //testing THIS IS PROFESSOR Porr's Code Copied
-       //int count=0; 
-       //int gain=5;
-     // for (int j=0;j<7;j++){
-      // double 
-        inVal = gain * sin( M_PI * count/50.0 );
+        //inVal = gain * sin( M_PI * count/50.0 );
 	++count;
 
 	// add the new input to the plot
 	memmove( yDataPointer, yDataPointer+1, (DATA-1) * sizeof(double) );
 	yDataPointer[DATA-1] = inVal;
-      //}
-      }
+      
+      } //end of while 
 
 }
 
