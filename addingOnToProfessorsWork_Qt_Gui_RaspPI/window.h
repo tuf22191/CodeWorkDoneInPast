@@ -18,6 +18,23 @@
 //#include <chrono>
 //#include <thread>
 #include <unistd.h>
+#include <linux/i2c-dev.h>
+#include <stdio.h>
+//#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <signal.h>
+#include <math.h>
+#include <fcntl.h>
+//#include <linux/i2c-dev.h>
+#include <time.h>
+#include <sys/time.h>
+
+
+
+
+
 
 // class definition 'Window'
 class Window : public QWidget

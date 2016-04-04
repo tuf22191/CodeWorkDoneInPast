@@ -109,7 +109,11 @@ void DaThread::run()
 	//getDataStructure() function for getting the array that has the data
         int counter =0;
         unsigned int millionMicroseconds=40000;
-        while(counter<7){
+        int gain=5; 
+        int count=0;
+        double inVal=0;
+
+        while(counter<10000){
         counter = counter+1;
 
         std::cout << "this is in the thread\n";
@@ -119,17 +123,18 @@ void DaThread::run()
        usleep(millionMicroseconds);
         
          
-           //testing THIS IS PROFESSOR Porr's Code Copied
-       int count=0; 
-       int gain=5;
-      for (int j=0;j<7;j++){
-       double inVal = gain * sin( M_PI * count/50.0 );
+       //testing THIS IS PROFESSOR Porr's Code Copied
+       //int count=0; 
+       //int gain=5;
+     // for (int j=0;j<7;j++){
+      // double 
+        inVal = gain * sin( M_PI * count/50.0 );
 	++count;
 
 	// add the new input to the plot
 	memmove( yDataPointer, yDataPointer+1, (DATA-1) * sizeof(double) );
 	yDataPointer[DATA-1] = inVal;
-      }
+      //}
       }
 
 }
