@@ -30,13 +30,13 @@ static const uint qt_meta_data_Window[] = {
        0,       // signalCount
 
  // slots: signature, parameters, type, tag, flags
-      13,    8,    7,    7, 0x0a,
+       7,   23,   28,   28, 0x0a,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_Window[] = {
-    "Window\0\0gain\0setGain(double)\0"
+    "Window\0setGain(double)\0gain\0\0"
 };
 
 void Window::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
