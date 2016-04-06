@@ -31,16 +31,61 @@ result=0;
 //result=softPwmCreate(pinx,0,215);
 if(result ==0){
 
-while(result<1000){
+while(result<600){
 
 bcm2835_gpio_write(PIN,HIGH);
-bcm2835_delay(3);
+//bcm2835_delay(3);
+bcm2835_delayMicroseconds(1400);
 bcm2835_gpio_write(PIN,LOW);
-bcm2835_delay(20);
-
+//bcm2835_delay(20);
+bcm2835_delayMicroseconds(20000);
 //printf("In while loop");
 result++;
 }
+result=0;
+while(result<600){
+
+bcm2835_gpio_write(PIN,HIGH);
+//bcm2835_delay(3);
+bcm2835_delayMicroseconds(1350);
+bcm2835_gpio_write(PIN,LOW);
+//bcm2835_delay(20);
+bcm2835_delayMicroseconds(20000);
+//printf("In while loop");
+result++;
+}
+
+result=0;
+while(result<600){
+
+bcm2835_gpio_write(PIN,HIGH);
+//bcm2835_delay(3);
+bcm2835_delayMicroseconds(1275);
+bcm2835_gpio_write(PIN,LOW);
+//bcm2835_delay(20);
+bcm2835_delayMicroseconds(20000);
+//printf("In while loop");
+result++;
+}
+
+
+
+result=0;
+while(result<600){
+
+bcm2835_gpio_write(PIN,HIGH);
+//bcm2835_delay(3);
+bcm2835_delayMicroseconds(1100);
+bcm2835_gpio_write(PIN,LOW);
+//bcm2835_delay(20);
+bcm2835_delayMicroseconds(20000);
+//printf("In while loop");
+result++;
+}
+
+
+
+
 
 }
 
