@@ -10,8 +10,8 @@
 
 
 //taken from online  From Airspayce.com written by Mike McCauley
-#define PIN RPI_GPIO_P1_12
-
+#define PIN RPI_GPIO_P1_11
+//#define PIN RPI_GPIO_P1_12
 
 int main() {
 
