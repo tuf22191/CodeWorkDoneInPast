@@ -194,28 +194,53 @@ void DaThread::init_i2c(char *DeviceName)
 
 void DaThread::run()
 {
-	//getDataStructure() function for getting the array that has the data
+///////////////////////////////////////////////
+	//general variables
         int counter =0;
         unsigned int micro_seconds=22000;
         int gain=5; 
         int count=0;
         double inVal=0;
 
-                int i, v;
+///////////////////////////////////////////////
+	//this is for the accelerometer use
+        int i, v;
         byte data[20];
-
         init_i2c("/dev/i2c-1");
-
         // set mode register to 1 to activate accelerometer
         data[0] = 7;
         data[1] = 1;
         I2cSendData(MMA7660_ADDR,data,2);
 
-bcm2835_init();
+///////////////////////////////////////////////
+	//this is for the servos
+        bcm2835_init();
+pthread_t servo_threads[2];
+struct servo_thread_data threads_data[2];
 
-        
+//pin BCM18 should be the first thread delay of below
+//delay should be less than 1500 mS
+//pin 18 is the left side looking from the back of the vehicle
 
-        
+threads_data[0].pin_num=PIN2;
+threads_data[0].hightime=&ls_time;//ls_time<1500
+threads_data[0].keepgoing=&ls_boolean;
+threads_data[0].id=0;
+
+//pin BCM17
+threads_data[1].pin_num=PIN;
+threads_data[1].hightime=&rs_time;//ls_time<1500
+threads_data[1].keepgoing=&rs_boolean;
+threads_data[1].id=1;
+
+//servo running with pin BCM18
+pthread_create(&servo_threads[0],NULL,rotateServo, (void *)&threads_data[0]);
+//servo running with pin BCM
+pthread_create(&servo_threads[1],NULL,rotateServo, (void *)&threads_data[1]);
+
+
+ //////////////////////////////////////////////////
+//while loop reads, calculates on the reading, and should adjust PWM for servos
         double v_cm_per_sec=0;
  
         while(counter<100000){
@@ -266,5 +291,18 @@ bcm2835_init();
       } //end of while 
         *rs_Boolean=0;
         *ls_Boolean=0;
+}
+
+
+void *rotateServo(void *servo_thread_stuff){
+struct servo_thread_data *data;
+data= (struct servo_thread_data *) servo_thread_stuff;
+while(*(data->keepgoing)==1){
+bcm2835_gpio_write(data->pin_num,HIGH);
+bcm2835_delayMicroseconds(*(data->hightime));
+bcm2835_gpio_write(data->pin_num,LOW);
+bcm2835_delayMicroseconds(20000);
+}
+pthread_exit(NULL);
 }
 

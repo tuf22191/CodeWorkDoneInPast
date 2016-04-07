@@ -39,10 +39,14 @@
 #include <bcm2835.h>
 #include <stdint.h>
 
+//for the servos
+#include <cstdlib>
+#include <pthread.h>
+
 
 #define MMA7660_ADDR  0x4c
 
-void rotateServo(int x);
+
 
 
 // class definition 'Window'
@@ -147,7 +151,15 @@ public:
 
  };
 
-            
+ //using servos //not in a class
+void rotateServo(void *servo_thread_stuff);
+struct servo_thread_data{
+    int id;
+    uint8_t pin_num;
+    uint64_t *hightime;
+    int *keepgoing;
+    
+};      
 
 
 #endif // WINDOW_H
