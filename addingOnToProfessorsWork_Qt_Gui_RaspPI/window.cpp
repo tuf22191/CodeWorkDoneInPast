@@ -76,6 +76,24 @@ Window::Window() : plot( QString("Velocity") ), gain(5), count(0) // <-- 'c++ in
         DaThread *ls =new DaThread();
         ls-> initiate(xData, yData);
         ls->start();
+
+        //start the servos around the time the data starts to be read
+         uint64_t  ls_time=1900;
+         int ls_boolean = 1;
+
+         ServoThread *leftServo =new ServoThread();
+         leftServo-> initiate(PIN, &ls_time, &ls_boolean);
+         leftServo->start();
+
+         uint64_t  rs_time=1100;
+         int rs_boolean = 1;
+
+         ServoThread *rightServo =new ServoThread();
+         rightServo-> initiate(PIN2, &rs_time, &rs_boolean);
+         rightServo->start();
+         usleep(100000000);
+         ls_boolean =0;
+         rs_boolean =0;
 }
 
 
@@ -182,20 +200,7 @@ void DaThread::run()
         I2cSendData(MMA7660_ADDR,data,2);
 
 
-        //start the servos around the time the data starts to be read
-         uint64_t  ls_time=1900;
-         int ls_boolean = 1;
-
-         ServoThread *leftServo =new ServoThread();
-         leftServo-> initiate(PIN, &ls_time, &ls_boolean);
-         leftServo->start();
-
-         uint64_t  rs_time=1100;
-         int rs_boolean = 1;
-
-         ServoThread *rightServo =new ServoThread();
-         rightServo-> initiate(PIN2, &rs_time, &rs_boolean);
-         rightServo->start();
+        
 
         
         double v_cm_per_sec=0;
@@ -234,7 +239,6 @@ void DaThread::run()
 	yDataPointer[DATA-1] = inVal;
       
       } //end of while 
-        ls_boolean =0;
-        rs_boolean =0; 
+         
 }
 
