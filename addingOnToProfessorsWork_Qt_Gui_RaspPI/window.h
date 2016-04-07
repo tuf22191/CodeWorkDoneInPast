@@ -93,13 +93,25 @@ private:
 
 public:
      void run();
-     void initiate(double xArray[],double yArray[]);
+     //void initiate(double xArray[],double yArray[]);
+     void initiate(double xArray[], double yArray[], uint64_t *ls_time, int *ls_boolean, uint64_t *rs_time,
+int *rs_boolean);
+
+
+
 	//AGAIN, BELOW is just taken from what Professor Had
       static const int DATA = 100;
 
 	// data arrays for the plot
 	double *xDataPointer;
 	double *yDataPointer;
+
+       uint64_t *ls_Time;
+       uint64_t *rs_Time;
+       int *rs_Boolean;
+       int *ls_Boolean;
+
+
 
       typedef unsigned char byte;
 

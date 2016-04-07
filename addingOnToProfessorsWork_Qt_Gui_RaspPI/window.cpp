@@ -74,27 +74,31 @@ Window::Window() : plot( QString("Velocity") ), gain(5), count(0) // <-- 'c++ in
         //tion to hook up the start() method of the QThread object and the 
         // desired method that does the processing 
         DaThread *ls =new DaThread();
-        ls-> initiate(xData, yData);
-        ls->start();
-std::cout << "It is working\n";
 
-        //start the servos around the time the data starts to be read
          uint64_t  ls_time=1900;
-         int ls_boolean = 1;
+          int ls_boolean = 1;
+          uint64_t  rs_time=1100;
+          int rs_boolean = 1;
 
-         ServoThread *leftServo =new ServoThread();
-         leftServo-> initiate(PIN, &ls_time, &ls_boolean);
-         leftServo->start();
 
-         uint64_t  rs_time=1100;
-         int rs_boolean = 1;
+        ls-> initiate(xData, yData,&ls_time, &ls_boolean, &rs_time,&rs_boolean);
+        ls->start();
+        std::cout << "It is working\n";
 
-         ServoThread *rightServo =new ServoThread();
-         rightServo-> initiate(PIN2, &rs_time, &rs_boolean);
-         rightServo->start();
-         usleep(100000000);
-         ls_boolean =0;
-         rs_boolean =0;
+        //start the servos around the time the data starts to be read  
+
+        // ServoThread *leftServo =new ServoThread();
+        // leftServo-> initiate(PIN, &ls_time, &ls_boolean);
+        // leftServo->start();
+ std::cout << "It is working1\n";
+
+         
+        // ServoThread *rightServo =new ServoThread();
+        // rightServo-> initiate(PIN2, &rs_time, &rs_boolean);
+        // rightServo->start();
+         
+        // ls_boolean =0;
+        // rs_boolean =0;
 }
 
 
@@ -131,12 +135,12 @@ void ServoThread::run(){
 
 while(*keepgoing==1){
 
-bcm2835_gpio_write(pin_num,HIGH);
-//bcm2835_delay(3);
-bcm2835_delayMicroseconds(*hightime);
-bcm2835_gpio_write(pin_num,LOW);
-//bcm2835_delay(20);
-bcm2835_delayMicroseconds(20000);
+//bcm2835_gpio_write(pin_num,HIGH);
+
+//bcm2835_delayMicroseconds(*hightime);
+//bcm2835_gpio_write(pin_num,LOW);
+//bcm2835_delayMicroseconds(20000);
+
 //printf("In while loop");
 
 }
@@ -144,12 +148,17 @@ bcm2835_delayMicroseconds(20000);
 }
 
 
-void DaThread::initiate(double xArray[], double yArray[])
+void DaThread::initiate(double xArray[], double yArray[], uint64_t *ls_time, int *ls_boolean, uint64_t *rs_time,
+int *rs_boolean)
 {
 	//for(int j=0;j<DATA;j++){
       //   xData[j]=amount;
       //   yData[j]=amount;
       //}
+      ls_Time=ls_time;
+      rs_Time=rs_time;
+      rs_Boolean=rs_boolean;
+      ls_Boolean=ls_boolean;
       xDataPointer=xArray;
       yDataPointer=yArray;
 }
@@ -185,7 +194,7 @@ void DaThread::run()
 {
 	//getDataStructure() function for getting the array that has the data
         int counter =0;
-        unsigned int micro_seconds=40000;
+        unsigned int micro_seconds=22000;
         int gain=5; 
         int count=0;
         double inVal=0;
@@ -200,6 +209,7 @@ void DaThread::run()
         data[1] = 1;
         I2cSendData(MMA7660_ADDR,data,2);
 
+bcm2835_init();
 
         
 
@@ -212,10 +222,10 @@ void DaThread::run()
         for (i=0; i<3; i++) {
               v = (data[i]/2^6)*9.81;
               if (v>=0x20) v = -(0x40 - v);  //sign extend negatives
-              printf("%c:%3d  ",i+'X',v);
+            printf("%c:%3d  ",i+'X',v);
               if(i==0){inVal=v;}
             }
-
+//           printf("%d is the value of ls_Time\n", (void*)ls_Time);
         //remember inVal is the acceleration
         //so we just add on to it
           
@@ -225,14 +235,26 @@ void DaThread::run()
 
          counter = counter+1;
 
-        std::cout << "this is in the thread\n";
+//        std::cout << "this is in the thread\n";
         //taken from StackOverflow
         //http://stackoverflow.com/questions/4184468/sleep-for-milliseconds
        //         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-       usleep(micro_seconds);
-        
+//       usleep(micro_seconds);
+        bcm2835_gpio_write(PIN,HIGH);
+        usleep(1000);
+        bcm2835_gpio_write(PIN2,HIGH);
+        usleep(1000);
+
+        //bcm2835_delayMicroseconds(*hightime);
+       bcm2835_gpio_write(PIN,LOW);
+       bcm2835_gpio_write(PIN2,LOW);
+
+        usleep(19500);
+
+        //bcm2835_delayMicroseconds(20000);
+
          
-        //inVal = gain * sin( M_PI * count/50.0 );
+        inVal = gain * sin( M_PI * count/50.0 );
 	++count;
 
 	// add the new input to the plot
@@ -240,6 +262,7 @@ void DaThread::run()
 	yDataPointer[DATA-1] = inVal;
       
       } //end of while 
-         
+        *rs_Boolean=0;
+        *ls_Boolean=0;
 }
 
