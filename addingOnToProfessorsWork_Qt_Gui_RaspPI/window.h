@@ -42,6 +42,8 @@
 
 #define MMA7660_ADDR  0x4c
 
+void rotateServo(int x);
+
 
 // class definition 'Window'
 class Window : public QWidget

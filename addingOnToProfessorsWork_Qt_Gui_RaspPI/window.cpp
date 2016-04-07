@@ -7,7 +7,9 @@
 #define PIN RPI_GPIO_P1_11
 #define PIN2 RPI_GPIO_P1_12
 
-
+void rotateServo(int x){
+printf("Working");
+}
 Window::Window() : plot( QString("Velocity") ), gain(5), count(0) // <-- 'c++ initialisation list' - google it!
 {
       //taken purely from online, not our code! 
