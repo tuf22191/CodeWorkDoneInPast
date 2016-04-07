@@ -152,13 +152,12 @@ public:
  };
 
  //using servos //not in a class
-void rotateServo(void *servo_thread_stuff);
+void *rotateServo(void *servo_thread_stuff);
 struct servo_thread_data{
-    int id;
-    uint8_t pin_num;
-    uint64_t *hightime;
-    int *keepgoing;
-    
+int id;
+uint8_t pin_num;
+uint64_t *hightime;
+int *keepgoing;
 };      
 
 

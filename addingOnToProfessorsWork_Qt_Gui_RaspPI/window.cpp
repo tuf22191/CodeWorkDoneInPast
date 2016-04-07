@@ -7,9 +7,7 @@
 #define PIN RPI_GPIO_P1_11
 #define PIN2 RPI_GPIO_P1_12
 
-void rotateServo(int x){
-printf("Working");
-}
+
 Window::Window() : plot( QString("Velocity") ), gain(5), count(0) // <-- 'c++ initialisation list' - google it!
 {
       //taken purely from online, not our code! 
@@ -214,7 +212,16 @@ void DaThread::run()
 
 ///////////////////////////////////////////////
 	//this is for the servos
-        bcm2835_init();
+// I primarily got the structure of the code from TutorialsPoint website C++ Multithreading, Qthreads I 
+// think I read somewhere are object oriented "helpers" of pthreads       
+       uint64_t  rs_time=1900;
+          int ls_boolean = 1;
+          uint64_t  ls_time=1100;
+          int rs_boolean = 1;
+
+
+
+ bcm2835_init();
 pthread_t servo_threads[2];
 struct servo_thread_data threads_data[2];
 
@@ -259,24 +266,27 @@ pthread_create(&servo_threads[1],NULL,rotateServo, (void *)&threads_data[1]);
         v_cm_per_sec=v_cm_per_sec + inVal*(micro_seconds/1000000.0)*100;    
         inVal=v_cm_per_sec;
       
-
+         if (counter%1000==0){
+           ls_time+=100;
+           rs_time-=100; 
+}
          counter = counter+1;
 
 //        std::cout << "this is in the thread\n";
         //taken from StackOverflow
         //http://stackoverflow.com/questions/4184468/sleep-for-milliseconds
        //         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-//       usleep(micro_seconds);
-        bcm2835_gpio_write(PIN,HIGH);
-        usleep(1000);
-        bcm2835_gpio_write(PIN2,HIGH);
-        usleep(1000);
+       usleep(micro_seconds);
+ //       bcm2835_gpio_write(PIN,HIGH);
+   //     usleep(1000);
+     //   bcm2835_gpio_write(PIN2,HIGH);
+       // usleep(1000);
 
         //bcm2835_delayMicroseconds(*hightime);
-       bcm2835_gpio_write(PIN,LOW);
-       bcm2835_gpio_write(PIN2,LOW);
+      // bcm2835_gpio_write(PIN,LOW);
+      // bcm2835_gpio_write(PIN2,LOW);
 
-        usleep(19500);
+       // usleep(19500);
 
         //bcm2835_delayMicroseconds(20000);
 
@@ -289,8 +299,8 @@ pthread_create(&servo_threads[1],NULL,rotateServo, (void *)&threads_data[1]);
 	yDataPointer[DATA-1] = inVal;
       
       } //end of while 
-        *rs_Boolean=0;
-        *ls_Boolean=0;
+      //  *rs_Boolean=0;
+      //  *ls_Boolean=0;
 }
 
 
