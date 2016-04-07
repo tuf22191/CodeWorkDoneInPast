@@ -34,6 +34,12 @@
 
 #include <sys/ioctl.h>
 
+//for using the bcm library
+#include <cstdint>
+#include <bcm2835.h>
+
+
+
 #define MMA7660_ADDR  0x4c
 
 
@@ -107,6 +113,25 @@ public:
 
  };
 
+//this is basically threading for the Servos
+//I built from the DaThread example, on which I got a lot of help online
+//to do it. I got a lot help from websites like StackOverflow and CplusPlus.com
+//and learncpp.com
+class ServoThread : public QThread
+ {
+     Q_OBJECT
+
+
+
+public:
+     void run();
+     void initiate(uint8_t pinnumber,uint64_t * uptime, int *boolean);
+	      
+      uint8_t pin_num;
+      uint64_t *hightime;
+      int *keepgoing;
+
+ };
 
             
 

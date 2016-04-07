@@ -1,6 +1,11 @@
 ﻿#include "window.h"
-
+//#include <stdio.h>
+//#include <bcm2835.h>
+//#include <cstdio>
 #include <cmath>  // for sine stuff
+//taken from online  From Airspayce.com written by Mike McCauley
+#define PIN RPI_GPIO_P1_11
+#define PIN2 RPI_GPIO_P1_12
 
 
 Window::Window() : plot( QString("Velocity") ), gain(5), count(0) // <-- 'c++ initialisation list' - google it!
@@ -86,13 +91,40 @@ void Window::timerEvent( QTimerEvent * ) //should plot every x amount of times
 }
 
 
+
+
 // this function can be used to change the gain of the A/D internal amplifier
 void Window::setGain(double gain)
 {
 	// for example purposes just change the amplitude of the generated input
 	this->gain = gain;
 }
- 
+
+void ServoThread::initiate(uint8_t pinnumber,uint64_t * uptime, int *boolean){
+  pin_num = pinnumber;
+  hightime = uptime;
+  keepgoing = boolean; 
+
+
+}
+
+void ServoThread::run(){
+
+while(*keepgoing==1){
+
+bcm2835_gpio_write(pin_num,HIGH);
+//bcm2835_delay(3);
+bcm2835_delayMicroseconds(*hightime);
+bcm2835_gpio_write(pin_num,LOW);
+//bcm2835_delay(20);
+bcm2835_delayMicroseconds(20000);
+//printf("In while loop");
+
+}
+
+}
+
+
 void DaThread::initiate(double xArray[], double yArray[])
 {
 	//for(int j=0;j<DATA;j++){
@@ -134,7 +166,7 @@ void DaThread::run()
 {
 	//getDataStructure() function for getting the array that has the data
         int counter =0;
-        unsigned int millionMicroseconds=40000;
+        unsigned int micro_seconds=40000;
         int gain=5; 
         int count=0;
         double inVal=0;
@@ -149,32 +181,47 @@ void DaThread::run()
         data[1] = 1;
         I2cSendData(MMA7660_ADDR,data,2);
 
-        //printf("Hit any key to quit\n\n"); 
 
+        //start the servos around the time the data starts to be read
+        uint64_t  ls_time=1900;
+        int ls_boolean = 1;
 
+        ServoThread *leftServo =new ServoThread();
+        leftServo-> initiate(PIN, &ls_time, &ls_boolean);
+        leftServo->start();
 
+        uint64_t  rs_time=1100;
+        int rs_boolean = 1;
+
+        ServoThread *rightServo =new ServoThread();
+        rightServo-> initiate(PIN2, &rs_time, &rs_boolean);
+        rightServo->start();
+
+        
+        double v_cm_per_sec=0;
  
         while(counter<10000){
 
-                        I2cReadData(MMA7660_ADDR,data,11);
+            I2cReadData(MMA7660_ADDR,data,11);
         for (i=0; i<3; i++) {
-                        v = (data[i]/2^6)*9.81;
-                        if (v>=0x20) v = -(0x40 - v);  //sign extend negatives
-                        printf("%c:%3d  ",i+'X',v);
-           if(i==0){inVal=v;}
-                }
+              v = (data[i]/2^6)*9.81;
+              if (v>=0x20) v = -(0x40 - v);  //sign extend negatives
+              printf("%c:%3d  ",i+'X',v);
+              if(i==0){inVal=v;}
+            }
 
-
-
-
-
+        //remember inVal is the acceleration
+        //so we just add on to it
+          
+        v_cm_per_sec=v_cm_per_sec + inVal*(micro_seconds/1000000.0)*100;    
+        inVal=v_cm_per_sec;
         counter = counter+1;
 
         std::cout << "this is in the thread\n";
         //taken from StackOverflow
         //http://stackoverflow.com/questions/4184468/sleep-for-milliseconds
        //         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-       usleep(millionMicroseconds);
+       usleep(micro_seconds);
         
          
         //inVal = gain * sin( M_PI * count/50.0 );
@@ -185,6 +232,7 @@ void DaThread::run()
 	yDataPointer[DATA-1] = inVal;
       
       } //end of while 
-
+        ls_boolean =0;
+        rs_boolean =0; 
 }
 
