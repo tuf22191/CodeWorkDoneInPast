@@ -183,24 +183,24 @@ void DaThread::run()
 
 
         //start the servos around the time the data starts to be read
-        uint64_t  ls_time=1900;
-        int ls_boolean = 1;
+         uint64_t  ls_time=1900;
+         int ls_boolean = 1;
 
-        ServoThread *leftServo =new ServoThread();
-        leftServo-> initiate(PIN, &ls_time, &ls_boolean);
-        leftServo->start();
+         ServoThread *leftServo =new ServoThread();
+         leftServo-> initiate(PIN, &ls_time, &ls_boolean);
+         leftServo->start();
 
-        uint64_t  rs_time=1100;
-        int rs_boolean = 1;
+         uint64_t  rs_time=1100;
+         int rs_boolean = 1;
 
-        ServoThread *rightServo =new ServoThread();
-        rightServo-> initiate(PIN2, &rs_time, &rs_boolean);
-        rightServo->start();
+         ServoThread *rightServo =new ServoThread();
+         rightServo-> initiate(PIN2, &rs_time, &rs_boolean);
+         rightServo->start();
 
         
         double v_cm_per_sec=0;
  
-        while(counter<10000){
+        while(counter<100000){
 
             I2cReadData(MMA7660_ADDR,data,11);
         for (i=0; i<3; i++) {
@@ -215,7 +215,9 @@ void DaThread::run()
           
         v_cm_per_sec=v_cm_per_sec + inVal*(micro_seconds/1000000.0)*100;    
         inVal=v_cm_per_sec;
-        counter = counter+1;
+      
+
+         counter = counter+1;
 
         std::cout << "this is in the thread\n";
         //taken from StackOverflow

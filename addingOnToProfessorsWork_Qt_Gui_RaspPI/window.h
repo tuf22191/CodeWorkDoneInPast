@@ -35,9 +35,9 @@
 #include <sys/ioctl.h>
 
 //for using the bcm library
-#include <cstdint>
+//#include <cstdint>
 #include <bcm2835.h>
-
+#include <stdint.h>
 
 
 #define MMA7660_ADDR  0x4c
@@ -127,9 +127,9 @@ public:
      void run();
      void initiate(uint8_t pinnumber,uint64_t * uptime, int *boolean);
 	      
-      uint8_t pin_num;
-      uint64_t *hightime;
-      int *keepgoing;
+      volatile      uint8_t pin_num;
+      volatile uint64_t *hightime;
+      volatile int *keepgoing;
 
  };
 
