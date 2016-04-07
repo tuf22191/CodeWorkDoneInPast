@@ -127,9 +127,9 @@ public:
      void run();
      void initiate(uint8_t pinnumber,uint64_t * uptime, int *boolean);
 	      
-      volatile      uint8_t pin_num;
-      volatile uint64_t *hightime;
-      volatile int *keepgoing;
+       uint8_t pin_num;
+       uint64_t *hightime;
+       int *keepgoing;
 
  };
 

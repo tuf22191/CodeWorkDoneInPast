@@ -76,6 +76,7 @@ Window::Window() : plot( QString("Velocity") ), gain(5), count(0) // <-- 'c++ in
         DaThread *ls =new DaThread();
         ls-> initiate(xData, yData);
         ls->start();
+std::cout << "It is working\n";
 
         //start the servos around the time the data starts to be read
          uint64_t  ls_time=1900;
