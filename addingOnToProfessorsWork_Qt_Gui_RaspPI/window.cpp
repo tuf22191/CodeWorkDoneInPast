@@ -2,12 +2,13 @@
 //#include <stdio.h>
 //#include <bcm2835.h>
 //#include <cstdio>
-#include <cmath>  // for sine stuff
+#include <cmath>  // for sine stuff //for absolute value stuff
 //taken from online  From Airspayce.com written by Mike McCauley
 #define PIN RPI_GPIO_P1_11
 #define PIN2 RPI_GPIO_P1_12
 #define TARGET_VELOCITY 2
 #define SHIFT_FOR_INT 26
+#define MIN_VALUE_FOR_GRAVITY_CLASSIFICATION .80
 
 Window::Window() : plot( QString("Velocity") ), gain(5), count(0) // <-- 'c++ initialisation list' - google it!
 {
@@ -215,9 +216,9 @@ void DaThread::run()
 	//this is for the servos
 // I primarily got the structure of the code from TutorialsPoint website C++ Multithreading, Qthreads I 
 // think I read somewhere are object oriented "helpers" of pthreads       
-       uint64_t  rs_time=1900;
+       uint64_t  rs_time=1700;
           int ls_boolean = 1;
-          uint64_t  ls_time=1100;
+          uint64_t  ls_time=1300;
           int rs_boolean = 1;
 
 
@@ -251,6 +252,9 @@ pthread_create(&servo_threads[1],NULL,rotateServo, (void *)&threads_data[1]);
 //while loop reads, calculates on the reading, and should adjust PWM for servos
         double v_cm_per_sec=0;
         double intermediate_double=0;
+        double z_axis_gravity=0;
+        
+ 
         while(counter<100000){
 
         //read in data and then in for loop , FORMAT THE DATA!
@@ -280,7 +284,8 @@ pthread_create(&servo_threads[1],NULL,rotateServo, (void *)&threads_data[1]);
                                                        //held the accelerometer stationary to get these approx
                                                        //values
                printf("%c in g's:%f  ",i+'X',intermediate_double);
-               if(i==0){inVal=intermediate_double;}
+               if(i==1){inVal=intermediate_double;}
+               if(i==2){z_axis_gravity=intermediate_double;}
             }
                printf("\n");
 //inVal is in g's right now
@@ -289,17 +294,28 @@ pthread_create(&servo_threads[1],NULL,rotateServo, (void *)&threads_data[1]);
 // deltaV= inVal*9.81*(micro_seconds/1000000.0)*100
 // inVal*9.81 converst to m/s^2 then multiply by delta_time or (micro_seconds/1000000.0) to get m/s
 // and then multiply this by 100 to get cm/s  
-        v_cm_per_sec=v_cm_per_sec + inVal*9.81*(micro_seconds/1000000.0)*100;    
-        inVal=v_cm_per_sec;
+        v_cm_per_sec=v_cm_per_sec + inVal*9.81*(micro_seconds/1000000.0)*100;   
       
+       
         //adjust speed of servo motors
-         if (inVal<TARGET_VELOCITY){ //speed up
-           ls_time-=100;
-           rs_time+=100; 
-         }
-         else if(inVal>TARGET_VELOCITY){//slow down
-           ls_time-=100;
-           rs_time+=100; 
+  if (std::abs(z_axis_gravity)<MIN_VALUE_FOR_GRAVITY_CLASSIFICATION){ //speed up
+         //if we are going up, speed up, test this x or y axis,
+         // 1. Seperate Videso
+         // 2. Fix physical things, bring tape
+          // 3. Run it and trouble shoot
+             if(inVal>-0.000001){ //if going up/down
+//technically we should use arcsine(z_axis_gravity)
+//and then speed up depending on how big the angle of incline is
+// so , the left servo motor time or ls_time (which spins faster 
+//from 1,500 usec. To 1,100 usec. going down. So, ls_time=1500-angle*5
+//but below is simpler!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                           ls_time-=100;
+             rs_time+=100;
+              }else{// if going down/up
+             ls_time+=100;
+             rs_time-=100;
+              }
+          
          }
          counter = counter+1;
 
@@ -311,7 +327,8 @@ pthread_create(&servo_threads[1],NULL,rotateServo, (void *)&threads_data[1]);
          
         //inVal = gain * sin( M_PI * count/50.0 );
 	++count;
-
+ 
+       inVal=v_cm_per_sec;  //plotting y velocity for i=1, x velocity for i=0
 	// add the new input to the plot-Taken from Professor
 	memmove( yDataPointer, yDataPointer+1, (DATA-1) * sizeof(double) );
 	yDataPointer[DATA-1] = inVal;
