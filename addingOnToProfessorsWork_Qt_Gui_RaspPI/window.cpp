@@ -7,6 +7,7 @@
 #define PIN RPI_GPIO_P1_11
 #define PIN2 RPI_GPIO_P1_12
 #define TARGET_VELOCITY 2
+#define SHIFT_FOR_INT 26
 
 Window::Window() : plot( QString("Velocity") ), gain(5), count(0) // <-- 'c++ initialisation list' - google it!
 {
@@ -255,12 +256,19 @@ pthread_create(&servo_threads[1],NULL,rotateServo, (void *)&threads_data[1]);
         //read in data and then in for loop , FORMAT THE DATA!
         I2cReadData(MMA7660_ADDR,data,11);
         for (i=0; i<3; i++) {
-              //v = (data[i]/2^6)*9.81;
-              v=data[i]<<2/4;//forget about the Alert bit
-              if (v>=0x20)
-                { v = -(0x40 - v);}  //sign extend negatives <- this clever way was found online 
+
+             //v = (data[i]/2^6)*9.81;
+              printf("real %c:%d ",i+'X',data[i]);
+              v=data[i];
+              v=v&0x0000003F;//int datatype has 4 bytes , set the most significant 26 bits to 0.
+                      
+             if (v>=0x20)
+                {
+                  v = -(0x40 - v);
+                }  //sign extend negatives <- this clever way was found online 
              else{
-                  v= (v<<3)/8;      //<- this other clever way was found in mbed's library
+                  v=v&0x0000001F;
+                 // v= (v<<3)/8;      //<- this other clever way was found in mbed's library
                 }
                intermediate_double=v/21.33; //       range for signed 5 bits is -32 to 31. The accel. 
                                             // from +-1.5g. So,  +32/1.5=21.33 approx.  
@@ -268,10 +276,10 @@ pthread_create(&servo_threads[1],NULL,rotateServo, (void *)&threads_data[1]);
                                             // the math works out
                //look at consel for all three values, X,Y,Z. 
    // we only focus on one access, the forward direction assuming, the accelerometer is parallel to ground
-               printf("%c:%3d  ",i+'X',intermediate_double);
-              if(i==0){inVal=intermediate_double;}
+               printf("%c in g's:%f  ",i+'X',intermediate_double);
+               if(i==0){inVal=intermediate_double;}
             }
-
+               printf("\n");
 //inVal is in g's right now
 //Physics:vf= velocity_initial + deltaV;
 // where deltaV= a*delta_time or
