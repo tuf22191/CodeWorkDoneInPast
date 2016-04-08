@@ -6,7 +6,7 @@
 //taken from online  From Airspayce.com written by Mike McCauley
 #define PIN RPI_GPIO_P1_11
 #define PIN2 RPI_GPIO_P1_12
-
+#define TARGET_VELOCITY 2
 
 Window::Window() : plot( QString("Velocity") ), gain(5), count(0) // <-- 'c++ initialisation list' - google it!
 {
@@ -249,59 +249,67 @@ pthread_create(&servo_threads[1],NULL,rotateServo, (void *)&threads_data[1]);
  //////////////////////////////////////////////////
 //while loop reads, calculates on the reading, and should adjust PWM for servos
         double v_cm_per_sec=0;
- 
+        double intermediate_double=0;
         while(counter<100000){
 
-            I2cReadData(MMA7660_ADDR,data,11);
+        //read in data and then in for loop , FORMAT THE DATA!
+        I2cReadData(MMA7660_ADDR,data,11);
         for (i=0; i<3; i++) {
-              v = (data[i]/2^6)*9.81;
-              if (v>=0x20) v = -(0x40 - v);  //sign extend negatives
-            printf("%c:%3d  ",i+'X',v);
-              if(i==0){inVal=v;}
+              //v = (data[i]/2^6)*9.81;
+              v=data[i]<<2/4;//forget about the Alert bit
+              if (v>=0x20)
+                { v = -(0x40 - v);}  //sign extend negatives <- this clever way was found online 
+             else{
+                  v= (v<<3)/8;      //<- this other clever way was found in mbed's library
+                }
+               intermediate_double=v/21.33; //       range for signed 5 bits is -32 to 31. The accel. 
+                                            // from +-1.5g. So,  +32/1.5=21.33 approx.  
+                                            //I really looked at mbed's library for the MMA7660, but I think
+                                            // the math works out
+               //look at consel for all three values, X,Y,Z. 
+   // we only focus on one access, the forward direction assuming, the accelerometer is parallel to ground
+               printf("%c:%3d  ",i+'X',intermediate_double);
+              if(i==0){inVal=intermediate_double;}
             }
-//           printf("%d is the value of ls_Time\n", (void*)ls_Time);
-        //remember inVal is the acceleration
-        //so we just add on to it
-          
-        v_cm_per_sec=v_cm_per_sec + inVal*(micro_seconds/1000000.0)*100;    
+
+//inVal is in g's right now
+//Physics:vf= velocity_initial + deltaV;
+// where deltaV= a*delta_time or
+// deltaV= inVal*9.81*(micro_seconds/1000000.0)*100
+// inVal*9.81 converst to m/s^2 then multiply by delta_time or (micro_seconds/1000000.0) to get m/s
+// and then multiply this by 100 to get cm/s  
+        v_cm_per_sec=v_cm_per_sec + inVal*9.81*(micro_seconds/1000000.0)*100;    
         inVal=v_cm_per_sec;
       
-         if (counter%1000==0){
-           ls_time+=100;
-           rs_time-=100; 
-}
+        //adjust speed of servo motors
+         if (inVal<TARGET_VELOCITY){ //speed up
+           ls_time-=100;
+           rs_time+=100; 
+         }
+         else if(inVal>TARGET_VELOCITY){//slow down
+           ls_time-=100;
+           rs_time+=100; 
+         }
          counter = counter+1;
 
-//        std::cout << "this is in the thread\n";
-        //taken from StackOverflow
-        //http://stackoverflow.com/questions/4184468/sleep-for-milliseconds
-       //         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-       usleep(micro_seconds);
- //       bcm2835_gpio_write(PIN,HIGH);
-   //     usleep(1000);
-     //   bcm2835_gpio_write(PIN2,HIGH);
-       // usleep(1000);
-
-        //bcm2835_delayMicroseconds(*hightime);
-      // bcm2835_gpio_write(PIN,LOW);
-      // bcm2835_gpio_write(PIN2,LOW);
-
-       // usleep(19500);
-
-        //bcm2835_delayMicroseconds(20000);
-
+       //SLEEP because we don't want a very large amount of points
+       //taken from StackOverflow
+       //http://stackoverflow.com/questions/4184468/sleep-for-milliseconds
+       //         std::this_thread::sleep_for(std::chrono::milliseconds(1000))
+        usleep(micro_seconds);
          
-        inVal = gain * sin( M_PI * count/50.0 );
+        //inVal = gain * sin( M_PI * count/50.0 );
 	++count;
 
-	// add the new input to the plot
+	// add the new input to the plot-Taken from Professor
 	memmove( yDataPointer, yDataPointer+1, (DATA-1) * sizeof(double) );
 	yDataPointer[DATA-1] = inVal;
       
       } //end of while 
-      //  *rs_Boolean=0;
-      //  *ls_Boolean=0;
-}
+      //the while loops in the servo thread should exit shortly after setting the booleans below to 0
+      rs_boolean=0;
+      ls_boolean=0;
+}//end of run function
 
 
 void *rotateServo(void *servo_thread_stuff){
