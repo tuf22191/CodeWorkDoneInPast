@@ -258,7 +258,6 @@ pthread_create(&servo_threads[1],NULL,rotateServo, (void *)&threads_data[1]);
         for (i=0; i<3; i++) {
 
              //v = (data[i]/2^6)*9.81;
-              printf("real %c:%d ",i+'X',data[i]);
               v=data[i];
               v=v&0x0000003F;//int datatype has 4 bytes , set the most significant 26 bits to 0.
                       
@@ -276,6 +275,10 @@ pthread_create(&servo_threads[1],NULL,rotateServo, (void *)&threads_data[1]);
                                             // the math works out
                //look at consel for all three values, X,Y,Z. 
    // we only focus on one access, the forward direction assuming, the accelerometer is parallel to ground
+               if(i==0){intermediate_double-=.046882;} //subtracting "x bias" value to get artificial value
+               if(i==1){intermediate_double-=.093675;} //subtracting "y bias" value to get artificial value
+                                                       //held the accelerometer stationary to get these approx
+                                                       //values
                printf("%c in g's:%f  ",i+'X',intermediate_double);
                if(i==0){inVal=intermediate_double;}
             }
