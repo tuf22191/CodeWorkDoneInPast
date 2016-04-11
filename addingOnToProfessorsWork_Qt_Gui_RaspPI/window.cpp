@@ -8,7 +8,7 @@
 #define PIN2 RPI_GPIO_P1_12
 #define TARGET_VELOCITY 2
 #define SHIFT_FOR_INT 26
-#define MIN_VALUE_FOR_GRAVITY_CLASSIFICATION .80
+#define MIN_VALUE_FOR_GRAVITY_CLASSIFICATION .85
 
 Window::Window() : plot( QString("Velocity") ), gain(5), count(0) // <-- 'c++ initialisation list' - google it!
 {
@@ -216,9 +216,9 @@ void DaThread::run()
 	//this is for the servos
 // I primarily got the structure of the code from TutorialsPoint website C++ Multithreading, Qthreads I 
 // think I read somewhere are object oriented "helpers" of pthreads       
-       uint64_t  rs_time=1650;
+       uint64_t  rs_time=1350;
           int ls_boolean = 1;
-          uint64_t  ls_time=1350;
+          uint64_t  ls_time=1650;
           int rs_boolean = 1;
 
 
@@ -310,8 +310,8 @@ pthread_create(&servo_threads[1],NULL,rotateServo, (void *)&threads_data[1]);
 //from 1,500 usec. To 1,100 usec. going down. So, ls_time=1500-angle*5
 //but below is simpler!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
              if(indicator==0){
-             ls_time-=100;
-             rs_time+=100;
+             ls_time+=100;
+             rs_time-=100;
              indicator=1;
              }
              
@@ -323,8 +323,8 @@ pthread_create(&servo_threads[1],NULL,rotateServo, (void *)&threads_data[1]);
          }
     else{
            if(indicator==1){
-            ls_time+=100;
-            rs_time-=100;
+            ls_time-=100;
+            rs_time+=100;
             indicator=0;
              }
        }
