@@ -216,9 +216,9 @@ void DaThread::run()
 	//this is for the servos
 // I primarily got the structure of the code from TutorialsPoint website C++ Multithreading, Qthreads I 
 // think I read somewhere are object oriented "helpers" of pthreads       
-       uint64_t  rs_time=1700;
+       uint64_t  rs_time=1650;
           int ls_boolean = 1;
-          uint64_t  ls_time=1300;
+          uint64_t  ls_time=1350;
           int rs_boolean = 1;
 
 
@@ -254,7 +254,7 @@ pthread_create(&servo_threads[1],NULL,rotateServo, (void *)&threads_data[1]);
         double intermediate_double=0;
         double z_axis_gravity=0;
         
- 
+        int indicator =0;
         while(counter<100000){
 
         //read in data and then in for loop , FORMAT THE DATA!
@@ -284,10 +284,10 @@ pthread_create(&servo_threads[1],NULL,rotateServo, (void *)&threads_data[1]);
                                                        //held the accelerometer stationary to get these approx
                                                        //values
                printf("%c in g's:%f  ",i+'X',intermediate_double);
-               if(i==1){inVal=intermediate_double;}
+               if(i==0){inVal=intermediate_double;}
                if(i==2){z_axis_gravity=intermediate_double;}
             }
-               printf("\n");
+             //  printf("\n");
 //inVal is in g's right now
 //Physics:vf= velocity_initial + deltaV;
 // where deltaV= a*delta_time or
@@ -295,7 +295,7 @@ pthread_create(&servo_threads[1],NULL,rotateServo, (void *)&threads_data[1]);
 // inVal*9.81 converst to m/s^2 then multiply by delta_time or (micro_seconds/1000000.0) to get m/s
 // and then multiply this by 100 to get cm/s  
         v_cm_per_sec=v_cm_per_sec + inVal*9.81*(micro_seconds/1000000.0)*100;   
-      
+       printf(" Vel. at cm/sec: %f \n ",v_cm_per_sec);      
        
         //adjust speed of servo motors
   if (std::abs(z_axis_gravity)<MIN_VALUE_FOR_GRAVITY_CLASSIFICATION){ //speed up
@@ -303,20 +303,33 @@ pthread_create(&servo_threads[1],NULL,rotateServo, (void *)&threads_data[1]);
          // 1. Seperate Videso
          // 2. Fix physical things, bring tape
           // 3. Run it and trouble shoot
-             if(inVal>-0.000001){ //if going up/down
+//             if(inVal>-0.000001){ //if going up/down
 //technically we should use arcsine(z_axis_gravity)
 //and then speed up depending on how big the angle of incline is
 // so , the left servo motor time or ls_time (which spins faster 
 //from 1,500 usec. To 1,100 usec. going down. So, ls_time=1500-angle*5
 //but below is simpler!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                           ls_time-=100;
+             if(indicator==0){
+             ls_time-=100;
              rs_time+=100;
-              }else{// if going down/up
-             ls_time+=100;
-             rs_time-=100;
-              }
+             indicator=1;
+             }
+             
+  //            }else{// if going down/up
+    //         ls_time+=100;
+      //       rs_time-=100;
+             
           
          }
+    else{
+           if(indicator==1){
+            ls_time+=100;
+            rs_time-=100;
+            indicator=0;
+             }
+       }
+
+
          counter = counter+1;
 
        //SLEEP because we don't want a very large amount of points
